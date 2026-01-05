@@ -1,4 +1,4 @@
-options(java.parameters = "-Xmx4G")
+options(java.parameters = "-Xmx512m")
 
 
 library(shiny)
@@ -22,19 +22,7 @@ pontos_r5r <- superficie %>%
   st_set_geometry(NULL) %>%
   select(id, name, lat, lon)
 
-caminho_arquivo <- "~\\r5r_regiao"
+caminho_arquivo <- "r5r_regiao"
 
 r5r_core <- setup_r5(data_path = caminho_arquivo, verbose = FALSE)
 
-rotas <- detailed_itineraries(
-  r5r_network = r5r_core,
-  origins = pontos_r5r,
-  destinations = pontos_r5r, 
-  mode = "WALK",             
-  shortest_path = TRUE,      
-  all_to_all = TRUE          
-)  
-
-rotas_nome <- rotas %>%
-  left_join(pontos_r5r %>% select(id, nome_origem = name), by = c("from_id" = "id")) %>%
-  left_join(pontos_r5r %>% select(id, nome_destino = name), by = c("to_id" = "id"))

@@ -2,8 +2,10 @@ library(shiny)
 library(shinyjs)
 library(googlesheets4)
 
-gs4_auth(path = "rotaspeufba.json")
+caminho_secreto <- "rotaspeufba.json"
+gs4_auth(path = caminho_secreto)
 URL_PLANILHA <- "16_UyvTv7CYSLYQs-0ZnoB1xuHK9oZ7s8vQvRnc07yWc"
+
 #interface
 ui <- fluidPage(
   useShinyjs(),
