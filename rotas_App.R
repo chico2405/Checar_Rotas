@@ -1,3 +1,5 @@
+options(java.parameters = "-Xmx1G")
+
 library(shiny)
 library(shinyjs)
 library(googlesheets4)
@@ -6,7 +8,28 @@ library(mapview)
 library(leaflet.extras)
 library(sf)    
 library(dplyr) 
+library(r5r)
+library(sf)
+library(data.table)
+library(here)
 
+caminho_projeto <- getwd()
+caminho_arquivo <- file.path(caminho_projeto, "r5r_regiao")
+
+dados_ufba <- st_read("edif_ufba.gpkg", quiet = TRUE)
+superficie <- st_point_on_surface(dados_ufba)
+
+pontos_r5r <- superficie %>%
+  mutate(
+    id = paste0("loc_", row_number()), 
+    name = ifelse(is.na(name) | name == "", paste("Local", row_number()), name),
+    lon = st_coordinates(.)[,1],
+    lat = st_coordinates(.)[,2]
+  ) %>%
+  st_set_geometry(NULL) %>%
+  select(id, name, lat, lon)
+
+r5r_network <- build_network(data_path = caminho_arquivo, verbose = FALSE)
 if(file.exists("rotaspeufba.json")) {
   gs4_auth(path = "rotaspeufba.json")
 }
@@ -75,7 +98,7 @@ server <- function(input, output, session) {
     
     tryCatch({
       rota <- detailed_itineraries(
-        r5r_core = r5r_core,
+        r5r_network = r5r_network,
         origins = pt_origem,
         destinations = pt_destino,
         mode = "WALK",
